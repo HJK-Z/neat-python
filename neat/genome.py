@@ -582,6 +582,7 @@ class DefaultGenome(object):
         Create a partially connected genome only connected to the last output,
         including (possibly) direct input-output connections.
         """
+        print(config.output_keys)
         output_id = config.output_keys[len(config.output_keys)-1]
         input = [i for i in self.nodes if i in config.input_keys]
         for input_id in input:
