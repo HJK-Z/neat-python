@@ -16,7 +16,7 @@ class DefaultGenomeConfig(object):
     """Sets up and holds configuration information for the DefaultGenome class."""
     allowed_connectivity = ['unconnected', 'fs_neat_nohidden', 'fs_neat', 'fs_neat_hidden',
                             'full_nodirect', 'full', 'full_direct',
-                            'partial_nodirect', 'partial', 'partial_direct']
+                            'partial_nodirect', 'partial', 'partial_direct', 'last_output']
 
     def __init__(self, params):
         # Create full set of available activation functions.
@@ -29,14 +29,18 @@ class DefaultGenomeConfig(object):
                         ConfigParameter('num_outputs', int),
                         ConfigParameter('num_hidden', int),
                         ConfigParameter('feed_forward', bool),
-                        ConfigParameter('compatibility_disjoint_coefficient', float),
-                        ConfigParameter('compatibility_weight_coefficient', float),
+                        ConfigParameter(
+                            'compatibility_disjoint_coefficient', float),
+                        ConfigParameter(
+                            'compatibility_weight_coefficient', float),
                         ConfigParameter('conn_add_prob', float),
                         ConfigParameter('conn_delete_prob', float),
                         ConfigParameter('node_add_prob', float),
                         ConfigParameter('node_delete_prob', float),
-                        ConfigParameter('single_structural_mutation', bool, 'false'),
-                        ConfigParameter('structural_mutation_surer', str, 'default'),
+                        ConfigParameter(
+                            'single_structural_mutation', bool, 'false'),
+                        ConfigParameter(
+                            'structural_mutation_surer', str, 'default'),
                         ConfigParameter('initial_connection', str, 'unconnected')]
 
         # Gather configuration data from the gene classes.
@@ -96,7 +100,8 @@ class DefaultGenomeConfig(object):
             if not (0 <= self.connection_fraction <= 1):
                 raise RuntimeError(
                     "'partial' connection value must be between 0.0 and 1.0, inclusive.")
-            f.write(f'initial_connection      = {self.initial_connection} {self.connection_fraction}\n')
+            f.write(
+                f'initial_connection      = {self.initial_connection} {self.connection_fraction}\n')
         else:
             f.write(f'initial_connection      = {self.initial_connection}\n')
 
@@ -229,6 +234,8 @@ class DefaultGenome(object):
                         f"\tif not, set initial_connection = partial_direct {config.connection_fraction}",
                         sep='\n', file=sys.stderr)
                 self.connect_partial_nodirect(config)
+        elif 'last_output' in config.initial_connection:
+            self.connect_last_output(config)
 
     def configure_crossover(self, genome1, genome2, config):
         """ Configure a new genome by crossover from two parent genomes. """
@@ -368,7 +375,8 @@ class DefaultGenome(object):
 
     def mutate_delete_node(self, config):
         # Do nothing if there are no non-output nodes.
-        available_nodes = [k for k in self.nodes if k not in config.output_keys]
+        available_nodes = [
+            k for k in self.nodes if k not in config.output_keys]
         if not available_nodes:
             return -1
 
@@ -447,7 +455,8 @@ class DefaultGenome(object):
         Returns genome 'complexity', taken to be
         (number of nodes, number of enabled connections)
         """
-        num_enabled_connections = sum([1 for cg in self.connections.values() if cg.enabled])
+        num_enabled_connections = sum(
+            [1 for cg in self.connections.values() if cg.enabled])
         return len(self.nodes), num_enabled_connections
 
     def __str__(self):
@@ -548,7 +557,8 @@ class DefaultGenome(object):
         assert 0 <= config.connection_fraction <= 1
         all_connections = self.compute_full_connections(config, False)
         shuffle(all_connections)
-        num_to_add = int(round(len(all_connections) * config.connection_fraction))
+        num_to_add = int(round(len(all_connections) *
+                         config.connection_fraction))
         for input_id, output_id in all_connections[:num_to_add]:
             connection = self.create_connection(config, input_id, output_id)
             self.connections[connection.key] = connection
@@ -561,8 +571,20 @@ class DefaultGenome(object):
         assert 0 <= config.connection_fraction <= 1
         all_connections = self.compute_full_connections(config, True)
         shuffle(all_connections)
-        num_to_add = int(round(len(all_connections) * config.connection_fraction))
+        num_to_add = int(round(len(all_connections) *
+                         config.connection_fraction))
         for input_id, output_id in all_connections[:num_to_add]:
+            connection = self.create_connection(config, input_id, output_id)
+            self.connections[connection.key] = connection
+
+    def connect_last_output(self, config):
+        """
+        Create a partially connected genome only connected to the last output,
+        including (possibly) direct input-output connections.
+        """
+        output_id = config.output_keys[len(config.output_keys)-1]
+        input = [i for i in self.nodes if i in config.input_keys]
+        for input_id in input:
             connection = self.create_connection(config, input_id, output_id)
             self.connections[connection.key] = connection
 
