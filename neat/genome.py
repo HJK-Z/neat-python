@@ -579,10 +579,11 @@ class DefaultGenome(object):
 
     def connect_last_output(self, config):
         """
-        Create a partially connected genome only connected to the last output,
-        including (possibly) direct input-output connections.
+        Create a partially connected genome,
+        with every input directly connected to the last output.
         """
         output_id = len(config.output_keys)-1
+        print(output_id)
         input = [i for i in self.nodes if i in config.input_keys]
         for input_id in input:
             connection = self.create_connection(config, input_id, output_id)
