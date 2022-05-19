@@ -583,10 +583,12 @@ class DefaultGenome(object):
         with every input directly connected to the last output.
         """
         output_id = len(config.output_keys)-1
-        raise Exception("this is id: " + str(output_id))
         input = [i for i in self.nodes if i in config.input_keys]
         for input_id in input:
-            connection = self.create_connection(config, input_id, output_id)
+            connection = config.connection_gene_type((input_id, output_id))
+            connection.init_attributes(config)
+            connection.weight = 0.1
+            connection.enabled = 1
             self.connections[connection.key] = connection
 
     def get_pruned_copy(self, genome_config):
