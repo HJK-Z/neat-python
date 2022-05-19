@@ -583,7 +583,7 @@ class DefaultGenome(object):
         with every input directly connected to the last output.
         """
         output_id = len(config.output_keys)-1
-        print(output_id)
+        raise Exception("this is id: " + str(output_id))
         input = [i for i in self.nodes if i in config.input_keys]
         for input_id in input:
             connection = self.create_connection(config, input_id, output_id)
