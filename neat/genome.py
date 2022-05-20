@@ -587,8 +587,6 @@ class DefaultGenome(object):
         for input_id in input:
             connection = config.connection_gene_type((input_id, output_id))
             connection.init_attributes(config)
-            connection.weight = 0.1
-            connection.enabled = 1
             self.connections[connection.key] = connection
 
     def get_pruned_copy(self, genome_config):
