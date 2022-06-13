@@ -1,10 +1,14 @@
-from setuptools import setup
+# -*- coding: utf-8 -*-
+
+from setuptools import find_packages
+from distutils.core import setup
 
 setup(
-    name='sapai-helper',
-    version='69.420',
-    url='https://github.com/HJK-Z/sapai-helper',
-    license="BSD",
-    description='A NEAT implementation specialized for Super Auto Pets',
-    packages=['neat', 'neat/iznn', 'neat/nn', 'neat/ctrnn', 'sapai']
-)
+      name='sapai',
+      version='0.0',
+      packages=['sapai',
+                ],
+      #find_packages(exclude=[]),
+      install_requires=['numpy', 'keras','torch', 'graphviz'],
+      data_files=[],
+      )
